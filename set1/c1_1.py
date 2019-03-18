@@ -4,6 +4,7 @@ ANS = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
 
 if __name__ == "__main__":
     output = codecs.encode(codecs.decode(INPUT, 'hex'), 'base64')
-    print(ANS)
-    print(output)
+    print("out", output.decode())
+    print("ANS", ANS)
+
 

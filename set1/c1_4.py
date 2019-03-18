@@ -14,7 +14,7 @@ if __name__ == "__main__":
         key = collections.Counter(separated).most_common()[0][0] ^ 0x20
         decipher = [x ^ key for x in separated]
 
-        # 0x20 is space, 0x7a is z
-        if min(decipher[:-1]) >= 0x20 and max(decipher[:-1]) <= 0x7a:
+        # 0x0a is space, 0x7a is z
+        if min(decipher) >= 0x0a and max(decipher) <= 0x7a:
             out = ''.join([format(x ^ key, '02x') for x in separated])
             print(i, codecs.decode(out, 'hex_codec').decode())
