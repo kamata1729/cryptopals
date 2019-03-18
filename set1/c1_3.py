@@ -9,7 +9,7 @@ if __name__ == "__main__":
     print("So {} is assumed to be SPACE code".format(hex(most_common)))
     key = most_common ^ 0x20
     print("SPACE code is 0x20, so encode key is ", hex(key))
-    out = ''.join([format(x ^ key, '02x') for x in codecs.decode(INPUT, 'hex')])
+    out = ''.join([format(x ^ key, '02x') for x in decoded])
     print("decoded string is ", codecs.decode(out, 'hex_codec'))
 
     
