@@ -1,5 +1,4 @@
 import codecs
-import collections
 import numpy as np
 
 INPUT = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
@@ -44,23 +43,37 @@ def english_score(input):
     score = 0
     for s in separated:
         if s > 0x7f:
-            continue
-        char = codecs.decode(format(s, '02x').encode(), 'hex').decode()
+            score = 0
+            break
+        char = codecs.decode(format(s, '02x').encode(), 'hex').decode().lower()
         if char in english_letter_frequency.keys():
             score += english_letter_frequency[char]
     return score
 
-if __name__ == "__main__":
-    separated = [int(INPUT[2*i: 2*(i+1)], 16)
-                 for i in range(len(INPUT)//2)]
+def single_xor_cipher(input, show_score=False):
+    separated = [int(input[2*i: 2*(i+1)], 16)
+                 for i in range(len(input)//2)]
+
     scores = np.zeros(255)
     for i in range(255):
         out = ''.join([format(x ^ i, '02x') for x in separated])
         scores[i] = english_score(out)
-
+    if np.sum(scores == 0) == 255:
+        if show_score:
+            return "", 0
+        else:
+            return ""
     key = scores.argmax()
-    output = codecs.decode(''.join([format(x ^ key, '02x') for x in separated]), 'hex').decode()
-    print(output)
+    output = codecs.decode(
+        ''.join([format(x ^ key, '02x') for x in separated]), 'hex').decode()
+    if show_score:
+        return output, english_score(''.join([format(x ^ key, '02x') for x in separated]))
+    else:
+        return output
+
+if __name__ == "__main__":
+    output, score = single_xor_cipher(INPUT, show_score=True)
+    print("output: {}, score: {}".format(output, score))
 
 
 

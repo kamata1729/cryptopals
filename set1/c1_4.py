@@ -1,20 +1,17 @@
 import codecs
-import collections
+from c1_3 import *
 
 if __name__ == "__main__":
     lines = None
     with open("files/4.txt") as f:
         lines = f.read()
         lines = lines.split('\n')
-
+    
+    outputs = []
+    scores = []
     for i, string in enumerate(lines):
         string = string.replace('\n', '')
-        separated = [int(string[2*i: 2*(i+1)], 16)
-                     for i in range(len(string)//2)]
-        key = collections.Counter(separated).most_common()[0][0] ^ 0x20
-        decipher = [x ^ key for x in separated]
-
-        # 0x0a is space, 0x7a is z
-        if min(decipher) >= 0x0a and max(decipher) <= 0x7a:
-            out = ''.join([format(x ^ key, '02x') for x in separated])
-            print(i, codecs.decode(out, 'hex_codec').decode())
+        output, score = single_xor_cipher(string, show_score=True)
+        scores.append(score)
+    likely_line_index = np.array(scores).argmax()
+    print(single_xor_cipher(lines[likely_line_index]))
