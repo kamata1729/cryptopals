@@ -3,7 +3,7 @@ import collections
 
 if __name__ == "__main__":
     lines = None
-    with open("4.txt") as f:
+    with open("files/4.txt") as f:
         lines = f.read()
         lines = lines.split('\n')
 
@@ -17,4 +17,4 @@ if __name__ == "__main__":
         # 0x20 is space, 0x7a is z
         if min(decipher[:-1]) >= 0x20 and max(decipher[:-1]) <= 0x7a:
             out = ''.join([format(x ^ key, '02x') for x in separated])
-            print(i, codecs.decode(out, 'hex_codec'))
+            print(i, codecs.decode(out, 'hex_codec').decode())
