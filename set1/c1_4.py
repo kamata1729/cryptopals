@@ -11,7 +11,7 @@ if __name__ == "__main__":
     scores = []
     for i, string in enumerate(lines):
         string = string.replace('\n', '')
-        output, score = single_xor_cipher(string, show_score=True)
-        scores.append(score)
+        result_dict = single_xor_cipher(string, show_score=True)
+        scores.append(result_dict['score'])
     likely_line_index = np.array(scores).argmax()
     print(single_xor_cipher(lines[likely_line_index]))
