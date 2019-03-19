@@ -1,7 +1,3 @@
-import codecs
-import base64
-
-
 def discover(enc):
     lines = [bytes.fromhex(line.strip()) for line in enc]
     result = []
