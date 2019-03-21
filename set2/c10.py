@@ -2,21 +2,15 @@ import math
 import codecs
 import base64
 from Crypto.Cipher import AES
-from c9 import pkcs_7_padding
 
 KEY = "YELLOW SUBMARINE"
 
 
-def xor(b1, b2):
+def xor(b1 :bytes, b2 :bytes):
     return ''.join([format(a ^ b, '02x') for a, b in zip(b1, b2)])
 
 
-def pkcs_7_padding(text, block_size):
-    """
-    text: string
-    block_size: int
-    return: string
-    """
+def pkcs_7_padding(text :str, block_size :int) -> str:
     no_of_blocks = math.ceil(len(text)/float(block_size))
     pad_value = int(no_of_blocks * block_size - len(text))
 
@@ -26,12 +20,7 @@ def pkcs_7_padding(text, block_size):
         return text + chr(pad_value) * pad_value
 
 
-def encrypt_cbc(input, key):
-    """
-    input: bytes
-    key: string
-    returns bytes
-    """
+def encrypt_cbc(input :bytes, key :str) -> bytes:
     block_length = len(key)
     cipher = pkcs_7_padding(input.decode(), block_length).encode()
     previous_text = (''.join(["\x00" for _ in range(block_length)])).encode()
@@ -45,11 +34,7 @@ def encrypt_cbc(input, key):
     return result
 
 
-def decrypt_cbc(input, key):
-    """
-    input: bytes
-    key: string
-    """
+def decrypt_cbc(input :bytes, key :str) -> str:
     block_length = len(key)
     previous_text = (''.join(["\x00" for _ in range(block_length)])).encode()
     decipher = AES.new(key, AES.MODE_ECB)
