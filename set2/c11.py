@@ -6,9 +6,9 @@ from Crypto.Cipher import AES
 from c10 import pkcs_7_padding, encrypt_cbc, decrypt_cbc
 
 
-def encrypt_ecb(input :bytes, key :str) -> bytes:
+def encrypt_ecb(input: bytes, key: str) -> bytes:
     block_length = len(key)
-    cipher = pkcs_7_padding(input.decode(), block_length).encode()
+    cipher = pkcs_7_padding(input, block_length)
     encipher = AES.new(key, AES.MODE_ECB)
     res = encipher.encrypt(cipher)
     return res
@@ -21,7 +21,7 @@ def decrypt_ecb(input :bytes, key :str) -> str:
 
 
 def generate_random_key(length: int = 16) -> bytes:
-    return bytes.fromhex(''.join([format(random.randint(0x30, 0x7e), '02x') for _ in range(length)]))
+    return bytes.fromhex(''.join([format(random.randint(0x30, 0x7e+1), '02x') for _ in range(length)]))
 
 
 def encryption_oracle(input: str, key_length: int = 16) -> bytes:

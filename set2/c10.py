@@ -6,23 +6,26 @@ from Crypto.Cipher import AES
 KEY = "YELLOW SUBMARINE"
 
 
-def xor(b1 :bytes, b2 :bytes):
+def xor(b1 :bytes, b2 :bytes) -> str:
     return ''.join([format(a ^ b, '02x') for a, b in zip(b1, b2)])
 
 
-def pkcs_7_padding(text :str, block_size :int) -> str:
-    no_of_blocks = math.ceil(len(text)/float(block_size))
-    pad_value = int(no_of_blocks * block_size - len(text))
+def pkcs_7_padding(text_bytes: bytes, block_size: int) -> bytes:
+    no_of_blocks = math.ceil(len(text_bytes)/float(block_size))
+    pad_value = int(no_of_blocks * block_size - len(text_bytes))
 
     if pad_value == 0:
-        return text + chr(block_size) * block_size
+        if len(text_bytes) == 0:
+            return text_bytes + bytes([block_size]) * block_size
+        else:
+            return text_bytes
     else:
-        return text + chr(pad_value) * pad_value
+        return text_bytes + bytes([pad_value]) * pad_value
 
 
 def encrypt_cbc(input :bytes, key :str) -> bytes:
     block_length = len(key)
-    cipher = pkcs_7_padding(input.decode(), block_length).encode()
+    cipher = pkcs_7_padding(input, block_length)
     previous_text = (''.join(["\x00" for _ in range(block_length)])).encode()
     encipher = AES.new(key, AES.MODE_ECB)
     result = b''
