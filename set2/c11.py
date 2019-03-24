@@ -3,7 +3,7 @@ import codecs
 import base64
 import random
 from Crypto.Cipher import AES
-from c10 import pkcs_7_padding, encrypt_cbc, decrypt_cbc
+from c10 import *
 
 
 def encrypt_ecb(input: bytes, key: str) -> bytes:
@@ -14,9 +14,10 @@ def encrypt_ecb(input: bytes, key: str) -> bytes:
     return res
 
 
-def decrypt_ecb(input :bytes, key :str) -> str:
+def decrypt_ecb(input :bytes, key :str) -> bytes:
     decipher = AES.new(key, AES.MODE_ECB)
-    dec = decipher.decrypt(input).decode('utf-8').rstrip(chr(0x04))
+    dec = decipher.decrypt(input)
+    dec = pkcs_7_unpadding(dec)
     return dec
 
 
