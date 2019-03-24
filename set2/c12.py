@@ -53,11 +53,12 @@ def decrypt_secret_string(secret: bytes):
     old_i = -1
     for i in range(secret_string_size):
         plain_text = As[:-i-1] + secret_pad
-        ct_block = encrypt_ecb(plain_text[start:stop], KEY)
+        ct_block = encrypt_ecb(plain_text, KEY)
+        ct_block = ct_block
         for j in range(256):
             plain_candidate = As[:-i-1] + guessed + bytes([j])
-            candidate = encrypt_ecb(plain_candidate[start:stop], KEY)
-            if ct_block == candidate:
+            candidate = encrypt_ecb(plain_candidate, KEY)
+            if ct_block[:secret_string_size] == candidate[:secret_string_size]:
                 guessed += bytes([j])
                 break
     return guessed

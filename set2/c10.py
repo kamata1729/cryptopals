@@ -22,6 +22,10 @@ def pkcs_7_padding(text_bytes: bytes, block_size: int) -> bytes:
     else:
         return text_bytes + bytes([pad_value]) * pad_value
 
+def pkcs_7_unpadding(input: str) -> str:
+    pad_len = ord(input[-1])
+    return input[:-pad_len]
+
 
 def encrypt_cbc(input :bytes, key :str) -> bytes:
     block_length = len(key)
