@@ -14,7 +14,7 @@ SECRET = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\naGFpciBj
 def duplicate_list(lis, min_length: int) -> list:
     """
     detect duplicate part in lis
-    return [(start_index_1, start_index_2)]
+    return [[start_index_1, start_index_2, length]]
     """
     result = []
     for a in set(lis):
@@ -22,8 +22,13 @@ def duplicate_list(lis, min_length: int) -> list:
         if len(indices) > 1:
             for i in range(len(indices) - 1):
                 for j in range(i+1, len(indices)):
-                    if lis[indices[i]: indices[i] + min_length] == lis[indices[j]: indices[j] + min_length]:
-                        result.append([indices[i], indices[j]])
+                    k = 0
+                    duplicate_flag = False
+                    while lis[indices[i]: indices[i] + min_length+k] == lis[indices[j]: indices[j] + min_length+k]:
+                        duplicate_flag = True
+                        k += 1
+                    if duplicate_flag:
+                        result.append([indices[i], indices[j], min_length+k-1])
     return result
 
 
@@ -34,7 +39,7 @@ def detect_cipher_mode(key: str, min_key_length: int = 10, max_key_length=100) -
         cipher_text_bytes = encrypt_ecb(sample_text.encode(), key)
         duplicates = duplicate_list(list(cipher_text_bytes), min_key_length)
         if len(duplicates) > 0:
-            block_size = min([j - i for i, j in duplicates])
+            block_size = min([j - i for i, j, _ in duplicates])
             return {'mode': 'ECB', 'block_size': block_size}
     return {'mode': 'CBC', 'block_size': None}
 
