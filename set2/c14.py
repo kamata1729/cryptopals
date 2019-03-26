@@ -1,13 +1,16 @@
 import base64
 import random
 import numpy as np
+from tqdm import tqdm
 from c10 import *
 from c11 import *
 from c12 import *
 
 
 KEY = generate_random_key()
+PREFIX_LENGTH = 35
 SECRET = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg\naGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq\ndXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg\nYnkK"
+SECRET2 = "sample answer"
 
 
 def generate_random_bytes(min_len=10, max_len=50, length=None) -> bytes:
@@ -16,14 +19,12 @@ def generate_random_bytes(min_len=10, max_len=50, length=None) -> bytes:
     return b''.join([bytes([random.randint(0, 255)]) for _ in range(length)])
 
 
-def encrypt_ecb_harder(input: bytes, key: str, prefix_length=None, flag=False) -> bytes:
+def encrypt_ecb_harder(input: bytes, key: str, prefix_length=None) -> bytes:
     block_length = len(key)
     random_prefix = generate_random_bytes(length=prefix_length)
     cipher = pkcs_7_padding(random_prefix+input, block_length)
     encipher = AES.new(key, AES.MODE_ECB)
     res = encipher.encrypt(cipher)
-    if flag:
-        return res, cipher
     return res
 
 
@@ -67,7 +68,7 @@ def decrypt_secret_string_harder_variable_prefix_length(secret: bytes) -> bytes:
     detect plain text by a word
     """
     cipher_text = None
-    for i in range(max_secret_text_size):
+    for i in tqdm(range(max_secret_text_size)):
         plain = bytes([126]) + bytes([127])*block_size*2 + \
             bytes([126])*block_size + As[:-i-1] + secret
         cipher_prefix_size = 0
@@ -111,7 +112,6 @@ def decrypt_secret_string_harder_variable_prefix_length(secret: bytes) -> bytes:
                                         candidate_prefix_size+max_secret_text_size]
             if cipher_block == candidate_block:
                 guessed += bytes([j])
-                print(guessed)
                 break
     return guessed
 
@@ -135,40 +135,33 @@ def decrypt_secret_string_harder_fixed_prefix_length(secret: bytes) -> bytes:
             prefix_size = dup[0][0] - i
             secret_text_size = len(cipher_text) - prefix_size
             break
-    print(prefix_size)
 
     """
     detect plain text by a word
     """
     guessed = b''
-    As = b'A' * secret_text_size
+    As = b'A' * (math.ceil(secret_text_size / block_size) * block_size)
     Bs = b'B' * (math.ceil(prefix_size/block_size) * block_size - prefix_size)
-    for i in range(secret_text_size):
+    for i in tqdm(range(secret_text_size)):
         plain = Bs + As[:-i-1] + secret
-        cipher_text, original_c = encrypt_ecb_harder(
-            plain, KEY, PREFIX_LENGTH, True)
+        cipher_text= encrypt_ecb_harder(
+            plain, KEY, PREFIX_LENGTH)
         cipher_block = cipher_text[prefix_size +
-                                   len(Bs): prefix_size+len(Bs)+secret_text_size]
-        #print(original_c[prefix_size+len(Bs) : prefix_size+len(Bs)+secret_text_size])
-        #print(original)
+                                   len(Bs): prefix_size+len(Bs)+len(As)-i + len(guessed)]
         for j in range(256):
             plain_candidate = Bs + As[:-i-1] + guessed + bytes([j])
-            candidate, original = encrypt_ecb_harder(
-                plain_candidate, KEY, PREFIX_LENGTH, True)
+            candidate= encrypt_ecb_harder(
+                plain_candidate, KEY, PREFIX_LENGTH)
             candidate_block = candidate[prefix_size +
-                                        len(Bs): prefix_size+len(Bs)+secret_text_size]
-            #print(original[prefix_size+len(Bs) : prefix_size+len(Bs)+secret_text_size])
-            #return
-            #print(candidate_block)
+                                        len(Bs): prefix_size+len(Bs)+len(As)-i + len(guessed)]
             if cipher_block == candidate_block:
                 guessed += bytes([j])
-                print(guessed)
                 break
-            if j == ord('a'):
-                print(original_c[prefix_size+len(Bs): prefix_size+len(Bs)+secret_text_size])
-                print(original[prefix_size+len(Bs): prefix_size+len(Bs)+secret_text_size])
-                print(cipher_block)
-                print(candidate_block)
-                return
     return guessed
 
+if __name__ == '__main__':
+    print("fixed length prefix...")
+    print(base64.b64decode(
+        decrypt_secret_string_harder_fixed_prefix_length(SECRET.encode())))
+    print("variable length prefix...")
+    print(decrypt_secret_string_harder_variable_prefix_length(SECRET2.encode()))
