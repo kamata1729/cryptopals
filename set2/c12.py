@@ -69,7 +69,6 @@ def decrypt_secret_string(secret: bytes):
     for i in range(secret_string_size):
         plain_text = As[:-i-1] + secret_pad
         ct_block = encrypt_ecb(plain_text, KEY)
-        ct_block = ct_block
         for j in range(256):
             plain_candidate = As[:-i-1] + guessed + bytes([j])
             candidate = encrypt_ecb(plain_candidate, KEY)
