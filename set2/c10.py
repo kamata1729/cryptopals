@@ -30,7 +30,7 @@ def pkcs_7_unpadding(input: bytes) -> bytes:
 def encrypt_cbc(input :bytes, key :str) -> bytes:
     block_length = len(key)
     cipher = pkcs_7_padding(input, block_length)
-    previous_text = (''.join(["\x00" for _ in range(block_length)])).encode()
+    previous_text = b''.join([b'\x00' for _ in range(block_length)])
     encipher = AES.new(key, AES.MODE_ECB)
     result = b''
     for i in range(0, len(cipher), block_length):
@@ -43,7 +43,7 @@ def encrypt_cbc(input :bytes, key :str) -> bytes:
 
 def decrypt_cbc(input :bytes, key :str) -> str:
     block_length = len(key)
-    previous_text = (''.join(["\x00" for _ in range(block_length)])).encode()
+    previous_text = b''.join([b'\x00' for _ in range(block_length)])
     decipher = AES.new(key, AES.MODE_ECB)
     result = ''
     for i in range(0, len(input), block_length):
@@ -53,11 +53,23 @@ def decrypt_cbc(input :bytes, key :str) -> str:
         previous_text = input[i:i+block_length]
     return result
 
+def encrypt_cbc2(input :bytes, key :str) -> bytes:
+    block_length = len(key)
+    cipher = pkcs_7_padding(input, block_length)
+    previous_text = b''.join([b'\x00' for _ in range(block_length)])
+    decipher = AES.new(key, AES.MODE_CBC, previous_text)
+    dec = decipher.decrypt(cipher)
+    #dec = pkcs_7_unpadding(dec)
+    return dec
+
 
 if __name__ == '__main__':
     #print(decrypt_cbc(encrypt_cbc(b"YELLOW SUBMARINE", KEY), KEY))
     with open("data/10.txt") as f:
         enc = base64.b64decode(f.read())
     print(decrypt_cbc(enc, KEY))
+
+    print(encrypt_cbc(b"aaaaYELLOW SUBMARINE", KEY))
+    print(encrypt_cbc2(b"aaaaYELLOW SUBMARINE", KEY))
 
     
